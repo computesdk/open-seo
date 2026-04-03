@@ -24,7 +24,6 @@ const hostedBaseUrlSchema = z
 
 function createAuth() {
   const baseUrl = getHostedBaseUrl();
-  const hasEmail = hasHostedAuthEmailConfig();
 
   const auth = betterAuth({
     baseURL: baseUrl,
@@ -39,29 +38,25 @@ function createAuth() {
     },
     emailAndPassword: {
       ...baseAuthConfig.emailAndPassword,
-      requireEmailVerification: hasEmail,
+      requireEmailVerification: true,
       resetPasswordTokenExpiresIn: 60 * 60,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: hasEmail
-        ? async ({ user, url }) => {
-            await sendHostedPasswordResetEmail({
-              email: user.email,
-              resetUrl: url,
-            });
-          }
-        : undefined,
+      sendResetPassword: async ({ user, url }) => {
+        await sendHostedPasswordResetEmail({
+          email: user.email,
+          resetUrl: url,
+        });
+      },
     },
     emailVerification: {
-      sendOnSignUp: hasEmail,
+      sendOnSignUp: true,
       autoSignInAfterVerification: true,
-      sendVerificationEmail: hasEmail
-        ? async ({ user, url }) => {
-            await sendHostedVerificationEmail({
-              email: user.email,
-              confirmationUrl: url,
-            });
-          }
-        : async () => {},
+      sendVerificationEmail: async ({ user, url }) => {
+        await sendHostedVerificationEmail({
+          email: user.email,
+          confirmationUrl: url,
+        });
+      },
     },
     trustedOrigins: getTrustedOrigins(baseUrl),
     database: drizzleAdapter(db, {
@@ -150,7 +145,7 @@ export function hasHostedAuthConfig() {
   try {
     getHostedBaseUrl();
     getHostedSecret();
-    return true;
+    return hasHostedAuthEmailConfig();
   } catch {
     return false;
   }
