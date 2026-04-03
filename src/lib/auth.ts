@@ -38,7 +38,7 @@ function createAuth() {
     },
     emailAndPassword: {
       ...baseAuthConfig.emailAndPassword,
-      requireEmailVerification: true,
+      requireEmailVerification: hasHostedAuthEmailConfig(),
       resetPasswordTokenExpiresIn: 60 * 60,
       revokeSessionsOnPasswordReset: true,
       sendResetPassword: async ({ user, url }) => {
@@ -145,7 +145,7 @@ export function hasHostedAuthConfig() {
   try {
     getHostedBaseUrl();
     getHostedSecret();
-    return hasHostedAuthEmailConfig();
+    return true;
   } catch {
     return false;
   }
