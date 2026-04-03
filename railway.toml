@@ -1,0 +1,6 @@
+[build]
+dockerfilePath = "Dockerfile.selfhost"
+
+[deploy]
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
